@@ -1,4 +1,4 @@
-name: NestJS API CI
+name: Hori Backend CI
 
 on:
   push:
@@ -13,25 +13,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # <database-relational-block>
-      - name: Run e2e tests for NestJS with TypeORM
+      # database-relational-block
+      - name: Run e2e tests for Hori Backend with TypeORM
         id: relational
         run: docker compose -f docker-compose.relational.ci.yaml --env-file env-example-relational -p ci-relational up --build --exit-code-from api
 
       - name: Copy prod.log from container to host
         if: ${{ failure() && steps.relational.conclusion == 'failure' }}
         run: docker cp ci-relational-api-1:/usr/src/app/prod.log .
-      # </database-relational-block>
 
-      # <database-document-block>
-      - name: Run e2e tests for NestJS with Mongoose
+      # database-document-block
+      - name: Run e2e tests for Hori Backend with Mongoose
         id: document
         run: docker compose -f docker-compose.document.ci.yaml --env-file env-example-document -p ci-document up --build --exit-code-from api
 
       - name: Copy prod.log from container to host
         if: ${{ failure() && steps.document.conclusion == 'failure' }}
         run: docker cp ci-document-api-1:/usr/src/app/prod.log .
-      # </database-document-block>
 
       - name: Upload prod.log to artifacts for debugging
         if: failure()
@@ -39,3 +37,21 @@ jobs:
         with:
           name: prod-logs
           path: prod.log
+
+      # Build and push Docker image to Docker Hub
+      - name: Log in to Docker Hub
+        if: success()
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build Docker image
+        if: success()
+        run: |
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/hori-backend:latest .
+
+      - name: Push Docker image to Docker Hub
+        if: success()
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/hori-backend:latest
