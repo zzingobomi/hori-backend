@@ -34,7 +34,6 @@ RUN sed -i 's/\r//g' /opt/wait-for-it.sh
 RUN sed -i 's/\r//g' /opt/startup.relational.dev.sh
 
 WORKDIR /usr/src/app
-COPY .env ./
 # RUN if [ ! -f .env ]; then cp env-example-relational .env; fi
 RUN npm run build
 
