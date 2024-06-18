@@ -46,12 +46,18 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
+      - name: Get current date and build number
+        id: vars
+        run: |
+          echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
+          echo "BUILD_NUMBER=${{ github.run_number }}" >> $GITHUB_ENV
+
       - name: Build Docker image
         if: success()
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/hori-backend:latest .
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/hori-backend:${{ env.DATE }}-${{ env.BUILD_NUMBER }} .
 
       - name: Push Docker image to Docker Hub
         if: success()
         run: |
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/hori-backend:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/hori-backend:${{ env.DATE }}-${{ env.BUILD_NUMBER }}
