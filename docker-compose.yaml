@@ -1,14 +1,13 @@
 services:
-  postgres:
-    image: postgres:16.3-alpine
+  mysql:
+    image: mysql
     ports:
-      - ${DATABASE_PORT}:5432
+      - ${DATABASE_PORT}:3306
     volumes:
-      - boilerplate-db:/var/lib/postgresql/data
+      - boilerplate-db:/var/lib/mysql
     environment:
-      POSTGRES_USER: ${DATABASE_USERNAME}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: ${DATABASE_NAME}
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE_NAME}
 
   maildev:
     build:
